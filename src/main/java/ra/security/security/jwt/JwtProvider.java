@@ -18,18 +18,17 @@ public class JwtProvider {
     @Value("${jwt.expirated}")
     private Long EXPIRED;
 
-    public  String generateToken(Authentication authentication){
-        UserPrinciple userPrinciple = (UserPrinciple) authentication.getPrincipal();
+    public  String generateToken(UserPrinciple userPrinciple){
         return Jwts.builder().setSubject(userPrinciple.getUsername()) // set chủ đề
                 .setIssuedAt(new Date()) // Thời gian bắt đầu
                 .setExpiration(new Date(new Date().getTime()+EXPIRED)) // thời gian kết thúc
-                .signWith(SignatureAlgorithm.ES512,SECRET) // chuwx kí và thuật toán mã hóa , chuỗi bí mật
+                .signWith(SignatureAlgorithm.HS512,SECRET) // chuwx kí và thuật toán mã hóa , chuỗi bí mật
                 .compact();
     }
 
     public boolean validateToken(String token){
         try {
-            Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token);
+            Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token); //Lưu ý chính tả
             return true;
 
         } catch (ExpiredJwtException e) {
@@ -48,7 +47,7 @@ public class JwtProvider {
 
     public  String getUserNameFromToken(String token){
             return Jwts.parser().setSigningKey(SECRET)
-                    .parseClaimsJwt(token).getBody().getSubject();
+                    .parseClaimsJws(token).getBody().getSubject(); // lưu ý chính tả
     }
 
 }

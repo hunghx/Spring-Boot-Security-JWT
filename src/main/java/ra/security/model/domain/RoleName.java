@@ -1,5 +1,5 @@
 package ra.security.model.domain;
 
 public enum RoleName {
-    ADMIN,USER,SELLER
+    ROLE_ADMIN,ROLE_USER,ROLE_SELLER
 }
