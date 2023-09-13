@@ -6,16 +6,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.web.bind.annotation.*;
-import ra.security.model.domain.Users;
+import ra.security.exception.LoginException;
 import ra.security.model.dto.request.FormSignInDto;
 import ra.security.model.dto.request.FormSignUpDto;
 import ra.security.model.dto.response.JwtResponse;
 import ra.security.security.jwt.JwtProvider;
 import ra.security.security.user_principle.UserPrinciple;
 import ra.security.service.IUserService;
+import ra.security.service.impl.MailService;
 
 
 import java.util.List;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v4/auth")
 @CrossOrigin("*")
 public class AuthController {
+    @Autowired
+    private MailService mailService;
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
@@ -38,11 +41,16 @@ public class AuthController {
         return ResponseEntity.ok("vào được rồi nè");
     }
     @PostMapping("/sign-in")
-    public ResponseEntity<JwtResponse> signin(@RequestBody FormSignInDto formSignInDto){
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(formSignInDto.getUsername(),formSignInDto.getPassword())
-        ); // tạo đối tương authentiction để xác thực thông qua username va password
-        // tạo token và trả về cho người dùng
+    public ResponseEntity<JwtResponse> signin(@RequestBody FormSignInDto formSignInDto) throws LoginException{
+        Authentication authentication =null;
+        try {
+             authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(formSignInDto.getUsername(), formSignInDto.getPassword())
+            ); // tạo đối tương authentiction để xác thực thông qua username va password
+            // tạo token và trả về cho người dùng
+        }catch (AuthenticationException e){
+            throw new LoginException("Username or password is incorrect!");
+        }
         UserPrinciple userPrinciple = (UserPrinciple) authentication.getPrincipal();
         String token = jwtProvider.generateToken(userPrinciple);
         // lấy ra user principle
@@ -57,7 +65,8 @@ public class AuthController {
     }
     @PostMapping("/sign-up")
     private ResponseEntity<String> signup(@RequestBody FormSignUpDto formSignUpDto){
-        userService.save(formSignUpDto);
+        userService.save(formSignUpDto); // save : status : pending
+        mailService.sendEmail("bdhuan1999@gmail.com","Register Success","well come to my app");
         return new ResponseEntity("success",HttpStatus.CREATED);
 
     }

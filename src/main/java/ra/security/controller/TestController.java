@@ -19,7 +19,7 @@ public class TestController {
     @Autowired
     IUserService userService;
     @GetMapping("/users")
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Users>> getUsers(){
         return ResponseEntity.ok(userService.findAll());
     }
