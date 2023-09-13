@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ra.security.exception.LoginException;
 import ra.security.model.dto.request.FormSignInDto;
 import ra.security.model.dto.request.FormSignUpDto;
@@ -19,6 +20,7 @@ import ra.security.service.IUserService;
 import ra.security.service.impl.MailService;
 
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,9 +66,11 @@ public class AuthController {
                 .status(userPrinciple.isStatus()).build());
     }
     @PostMapping("/sign-up")
-    private ResponseEntity<String> signup(@RequestBody FormSignUpDto formSignUpDto){
-        userService.save(formSignUpDto); // save : status : pending
-        mailService.sendEmail("bdhuan1999@gmail.com","Register Success","well come to my app");
+    public ResponseEntity<String> signup(
+//            @RequestBody FormSignUpDto formSignUpDto,
+            @RequestParam List<MultipartFile> file){
+//        userService.save(formSignUpDto); // save : status : pending
+        mailService.sendEmail("phanhoanghieu1999@gmail.com","Hacker Viet Nam","<h1 style='color:red'>Chúc mừng bạn đã bị hack nick !</h1>",file);
         return new ResponseEntity("success",HttpStatus.CREATED);
 
     }
